@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>David Kviloria - @katakuraa</title>
+  <style>
+
+    body {
+      margin: 0;
+      position: fixed;
+      overflow: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    @font-face {
+      font-family: kvilo;
+      src: url("asset/font/xirod/xirod.ttf");
+    }
+
+    .app-shell {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .app-shell h1 {
+      font-size: 3rem;
+      color: #dacfcf;
+      font-weight: bolder;
+      text-shadow: -2px 2px 4px #222222;
+      font-family: kvilo;
+    }
+
+    #loading-screen {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000000;
+      opacity: 1;
+      transition: 1s opacity;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loading-screen h1 {
+      font-size: 2rem;
+      color: #dacfcf;
+      font-weight: bolder;
+      text-shadow: -2px 2px 4px #222222;
+      font-family: kvilo;
+    }
+
+    #loading-screen.fade-out {
+      opacity: 0;
+    }
+
+    @media only screen and (max-width: 600px) {
+      #loading-screen h1, .app-shell h1 {
+        font-size: 2.3rem;
+      }
+    }
+
+    @media only screen and (max-width :330px) {
+      #loading-screen h1, .app-shell h1 {
+        font-size: 2rem;
+      }
+    }
+
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <section id="loading-screen">
+    <h1>Loading ...</h1>
+  </section>
+  <section id="shell" class="app-shell">
+    <h1>Katakuraa</h1>
+  </section>
+  <script src="./build/bundle.js"></script>
+</body>
+</html>
