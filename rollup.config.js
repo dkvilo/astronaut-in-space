@@ -11,12 +11,13 @@ export default {
 	input: "src/app.ts",
 	plugins: [
 		resolve(),
-		serve({
-			open: true,
-			verbose: true,
-			port: 3000,
-		}),
-		livereload(),
+		!isProduction &&
+			serve({
+				open: true,
+				verbose: true,
+				port: 3000,
+			}),
+		!isProduction && livereload(),
 		isProduction && terser(),
 		json({ compact: true }),
 		typescript({ lib: ["es5", "es6", "dom"], target: "es5" }),
