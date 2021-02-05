@@ -2,6 +2,7 @@
 
 this project was build with three.js
 
+[Demo with Vanilla Js](https://suspicious-goldberg-c31750.netlify.app/)
 [Demo With React](https://katakuraa.dev/?ref=astrorepo)
 
 ```
