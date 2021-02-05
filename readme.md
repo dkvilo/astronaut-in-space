@@ -10,3 +10,6 @@ this project was build with three.js
 ```
 
 ![Preview](prev.png "Preview")
+
+## With Atmosphere
+![ATMOSPHERE](prev-atmosphere.png "With Atmosphere")
