@@ -28,13 +28,13 @@
       width: 100vw;
       height: 100vh;
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: center;
     }
 
     .app-shell h1 {
       font-size: 3rem;
-      color: #dacfcf;
+      color: #ffffff;
       font-weight: bolder;
       text-shadow: -2px 2px 4px #222222;
       font-family: kvilo;
@@ -42,7 +42,7 @@
 
     #loading-screen {
       position: absolute;
-      z-index: 2;
+      z-index: 5;
       top: 0;
       left: 0;
       width: 100vw;
@@ -57,10 +57,31 @@
 
     #loading-screen h1 {
       font-size: 2rem;
-      color: #dacfcf;
+      color: #ffffff;
       font-weight: bolder;
       text-shadow: -2px 2px 4px #222222;
       font-family: kvilo;
+      opacity: 0.5;
+    }
+
+    footer {
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    
+    .author {
+      font-size: 1rem;
+      color: #ffffff;
+      font-weight: bolder;
+      text-shadow: -2px 2px 4px #222222;
+      font-family: monospace;
     }
 
     #loading-screen.fade-out {
@@ -89,6 +110,9 @@
   <section id="shell" class="app-shell">
     <h1>Katakuraa</h1>
   </section>
+  <footer>
+    <p class="author">By David Kviloria</p>
+  </footer>
   <script src="./build/bundle.js"></script>
 </body>
 </html>

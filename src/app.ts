@@ -9,16 +9,33 @@ import {
 	HemisphereLight,
 	DirectionalLight,
 	LoadingManager,
+	FogExp2,
+	Mesh,
+	MeshBasicMaterial,
+	Shader,
+	UniformsUtils,
+	PlaneBufferGeometry,
+	Vector2,
 } from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass";
 import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass";
+import { ImprovedNoise } from "three/examples/jsm/math/ImprovedNoise";
+import { fog } from "./shaders";
 
 type ent_t = { obj: Group };
+
+type atmosphere_t = {
+	color: number;
+	density: number;
+	nearColor: number;
+	noiseSpeed: number;
+	noiseFreq: number;
+	noiseImpact: number;
+};
 
 let container: HTMLDivElement;
 let renderer: WebGLRenderer;
@@ -66,6 +83,18 @@ function loadAnimatedObject(): void {
 	loader.load("../objects/astronaut/anim/Astronaut.fbx", load_a);
 }
 
+const worldWidth = 256;
+const worldDepth = 256;
+
+const atmosphere: atmosphere_t = {
+	color: 0x70a1ff,
+	density: 0.0025,
+	nearColor: 0xffffff,
+	noiseSpeed: 100,
+	noiseFreq: 2.0012,
+	noiseImpact: 0.5,
+};
+
 init();
 animate();
 
@@ -86,8 +115,60 @@ function init() {
 	// Set dark background
 	scene.background = new Color(0x222222);
 
+	scene.fog = new FogExp2(atmosphere.color, atmosphere.density);
+
 	// Add Grind on the scene
 	scene.add(new GridHelper(20, 20));
+
+	const data = generateHeight(worldWidth, worldDepth);
+	const geometry = new PlaneBufferGeometry(
+		7500,
+		7500,
+		worldWidth - 1,
+		worldDepth - 1
+	);
+	geometry.rotateX(Math.PI / 2);
+
+	const vertices: ArrayLike<number> = geometry.attributes.position.array;
+	for (let i: number = 0, j = 0, l = vertices.length; i < l; i++, j += 3) {
+		(vertices[j + 1] as any) = data[i] * 10;
+	}
+
+	const mesh = new Mesh(
+		geometry,
+		new MeshBasicMaterial({ color: new Color(0xefd1b5) })
+	);
+
+	mesh.material.onBeforeCompile = (shader: Shader) => {
+		shader.vertexShader = shader.vertexShader.replace(
+			`#include <fog_pars_vertex>`,
+			fog.parsVertex
+		);
+		shader.vertexShader = shader.vertexShader.replace(
+			`#include <fog_vertex>`,
+			fog.vertex
+		);
+		shader.fragmentShader = shader.fragmentShader.replace(
+			`#include <fog_pars_fragment>`,
+			fog.parseFragment
+		);
+		shader.fragmentShader = shader.fragmentShader.replace(
+			`#include <fog_fragment>`,
+			fog.fragment
+		);
+
+		const uniforms = {
+			fogNearColor: { value: new Color(atmosphere.nearColor) },
+			fogNoiseFreq: { value: atmosphere.noiseFreq },
+			fogNoiseSpeed: { value: atmosphere.noiseSpeed },
+			fogNoiseImpact: { value: atmosphere.noiseImpact },
+			time: { value: 0 },
+		};
+
+		shader.uniforms = UniformsUtils.merge([shader.uniforms, uniforms]);
+	};
+
+	scene.add(mesh);
 
 	// Create ambient light
 	const ambient: HemisphereLight = new HemisphereLight(
@@ -95,6 +176,7 @@ function init() {
 		0x886666,
 		0.75
 	);
+
 	ambient.position.set(-0.5, 0.75, -1);
 	scene.add(ambient);
 
@@ -126,8 +208,9 @@ function init() {
 		0.85, // noise intensity
 		0.025, // scan line intensity
 		680, // scan line count
-		2 // gray scale
+		1 // gray scale
 	);
+
 	filmPass.renderToScreen = true;
 	composer.addPass(filmPass);
 
@@ -184,6 +267,36 @@ function animate() {
 		render(t - pervT);
 		pervT = t;
 	});
+}
+
+// Generate random hight based on input
+function generateHeight(width: number, height: number) {
+	let seed = Math.PI / 4;
+
+	const size = width * height;
+	const data = new Uint8Array(size);
+	const perlin = new ImprovedNoise();
+
+	// override original random function
+	Math.random = function () {
+		const x = Math.sin(seed++) * 10000;
+		return x - Math.floor(x);
+	};
+
+	let quality = 1;
+	const z = Math.random() * 100;
+
+	for (let j = 0; j < 4; j++) {
+		for (let i = 0; i < size; i++) {
+			const coords = new Vector2(i % width, ~~(i / width));
+			data[i] += Math.abs(
+				perlin.noise(coords.x / quality, coords.y / quality, z) * quality * 1.75
+			);
+		}
+
+		quality *= 5;
+	}
+	return data;
 }
 
 function onWindowResize() {
